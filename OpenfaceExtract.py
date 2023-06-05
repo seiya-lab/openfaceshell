@@ -1,60 +1,70 @@
-# -*- coding: utf-8 -*-
-#OpenFace?¿½?¿½p?¿½?¿½?¿½Äƒr?¿½f?¿½I?¿½f?¿½[?¿½^?¿½?¿½?¿½?¿½?¿½?¿½?¿½?¿½Ê‚ğ’Šo?¿½?¿½?¿½?¿½
-import glob
 import os
 import subprocess
-import time
 
-default_path = '/tmp/loggerstation_syozemi_processed'
-# default_path = './loggerstation'
-# users = ['OMU-122','omu-123','OMU-124','OMU-125','omu126','OMU-127','OMU-128','OMU-129','OMU-130','OMU-131']
-# users = ['s2022-3','s2022-4','s2022-5','s2022-7','s2022-8','s202211','s2022-13','sa2022-15','s2022-15','s2022-16']
-# users = ['s2022-15', 's2022-16']
-users = ['s2022-1', 's2022-2', 's2022-6', 's2022-9', 's2022-10', 's2022-12', 's2022-14', 's2022-17']
-############################################################################
-make_cmd = '/home/openface-build/build/make'
-# print(make_cmd)
-os.system(make_cmd)
+INPUT_FOLDER = '/tmp/presentation'
+OUTPUT_FOLDER = '/tmp/presentation_processed'
+MAKE_CMD = '/home/openface-build/build/make'
+OPENFACE_BIN = '/home/openface-build/build/bin/FeatureExtraction'
+FFMPEG_BIN = 'ffmpeg'
 
-total_loop = 0
-for user in users:
-    total_loop += len(os.listdir(default_path + '/' + user))
+def run_cmd(cmd):
+    """
+    ã‚³ãƒãƒ³ãƒ‰ã‚’å®Ÿè¡Œã™ã‚‹é–¢æ•°
+    """
+    process = subprocess.Popen(cmd, shell=True)
+    process.wait()
 
-now_loop = 0
-start = time.time()
-for user in users:
-    user_loop_record = 0
-    date_dirs = os.listdir(default_path + '/' + user)
-    for date_dir in date_dirs:
-        user_loop_record += 1
-        now_loop += 1
-        video_path = os.path.join(default_path, user, date_dir, 'camera_raw.mp4') 
-        out_path = os.path.join(default_path, user, date_dir)
-        # out_path2 = os.path.join(default_path, 'syozemi_give', user)
+def feature_extract(video_path, output_dir):
+    """
+    å¼•æ•°video_pathã®å‹•ç”»ãƒ•ã‚¡ã‚¤ãƒ«ã‚’OpenFaceã§å‡¦ç†ã™ã‚‹é–¢æ•°
+    """
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
         
-        run_cmd = "/home/openface-build/build/bin/FeatureExtraction -f " + video_path + " -out_dir " + out_path + "/FaceFeature"
-        # ffmpeg_cmd = 'ffmpeg -i ' + os.path.join(out_path, 'camera_raw.avi') + ' ' + os.path.join(out_path, 'openface.mp4')
-        rm_avi_cmd = 'rm ' + os.path.join(out_path, 'FaceFeature', 'camera_raw.avi')
-        rm_hog_cmd = 'rm ' + os.path.join(out_path, 'FaceFeature', 'camera_raw.hog')
-        rm_bmp_cmd = 'rm -rf ' + os.path.join(out_path, 'FaceFeature', 'camera_raw_aligned')
+    run_cmd(f"{OPENFACE_BIN} -f {video_path} -out_dir {output_dir}")
+
+def convert_avi_to_mp4(avi_path, mp4_path):
+    """
+    å¼•æ•°avi_pathã§æŒ‡å®šã•ã‚ŒãŸaviãƒ•ã‚¡ã‚¤ãƒ«ã‚’mp4ã«å¤‰æ›ã™ã‚‹é–¢æ•°
+    """
+    run_cmd(f"{FFMPEG_BIN} -i {avi_path} -vcodec libx264 {mp4_path}")
+    os.remove(avi_path)
+
+def remove_files(file_paths):
+    """
+    å¼•æ•°file_pathsã§æŒ‡å®šã•ã‚ŒãŸãƒ•ã‚¡ã‚¤ãƒ«ã‚’å‰Šé™¤ã™ã‚‹é–¢æ•°
+    """
+    for file_path in file_paths:
+        os.remove(file_path)
+
+if __name__ == '__main__':
+    os.system(MAKE_CMD)
+    
+    if not os.path.exists(OUTPUT_FOLDER):
+        os.makedirs(OUTPUT_FOLDER)
         
+    videoes = [os.path.join(INPUT_FOLDER, file) for file in os.listdir(INPUT_FOLDER) if not file.startswith('.')]
+    
+    total_videos = len(videoes)
+    processed_videos = 0
+    
+    for video_path in videoes:
+        video_name = os.path.splitext(os.path.basename(video_path))[0]
+        output_dir = os.path.join(OUTPUT_FOLDER, f"{video_name}_FaceFeature")
         
-        # print(run_cmd)
-        print('#########################################')
-        print('user:', user)
-        print('path:', video_path)
-        print('loop: {}/{}, {}%'.format(now_loop, total_loop, float(now_loop)*100/total_loop))
-        now_time = time.time()-start
-        print('now time:', now_time)
-        print('remaining time:', now_time*float(total_loop)/(now_loop-0.99)-now_time)
-        print('#########################################')
+        feature_extract(video_path, output_dir)
+        
+        avi_path = os.path.join(output_dir, f"{video_name}.avi")
+        mp4_path = os.path.join(output_dir, f"{video_name}.mp4")
+        
+        convert_avi_to_mp4(avi_path, mp4_path)
+        
+        remove_files([os.path.join(output_dir, f"{video_name}.hog"), os.path.join(output_dir, f"{video_name}_aligned")])
+        processed_videos += 1
+        
+        progress = (processed_videos / total_videos) * 100
+        print(f"Processing video: {video_path}")
+        print(f"Progress: {processed_videos}/{total_videos} ({progress:.2f}%)")
         print()
-        
-        os.system(run_cmd)
-        if user_loop_record != 6:
-            os.system(rm_avi_cmd)
-            os.system(rm_hog_cmd)
-            os.system(rm_bmp_cmd)
-            print('Deleted!')
-        else:
-            pass
+
+    print("Processing completed.")
