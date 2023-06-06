@@ -9,6 +9,10 @@
 
 ## 使用方法
 
+```
+docker run -v 'C:\Users\tanaka\Develop\openfaceshell\':/src -v 'C:\Users\tanaka\Downloads\angle_tests':/dataset -it --rm algebr/openface:latest
+```
+
 1. `OpenfaceExtract.py` スクリプトを実行します。
 2. スクリプトの先頭にある以下の変数を適切に設定します。
 

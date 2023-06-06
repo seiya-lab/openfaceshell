@@ -2,8 +2,10 @@
 import os
 import subprocess
 
-INPUT_FOLDER = '/dataset/presentation'
-OUTPUT_FOLDER = '/dataset/presentation_processed'
+# docker command
+# docker run -it -v "C:\Users\tanaka\Develop\openfaceshell\":/src -v "C:\Users\tanaka\Downloads\angle_test":/dataset --rm algebr/openface:latest
+INPUT_FOLDER = '/dataset/angle_test'
+OUTPUT_FOLDER = '/dataset/angle_test_processed'
 MAKE_CMD = '/home/openface-build/build/make'
 OPENFACE_BIN = '/home/openface-build/build/bin/FeatureExtraction'
 FFMPEG_BIN = 'ffmpeg'

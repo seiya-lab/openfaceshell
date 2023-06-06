@@ -1,4 +1,5 @@
-# �w�肵���t�H���_�����ċA�I�ɒT�����Aavi�t�@�C����mp4�ɕϊ�����X�N���v�g
+# -*- coding: utf-8 -*-
+# 指定したフォルダ下を再帰的に探索し、aviファイルをmp4に変換するスクリプト
 import os
 import subprocess
 from SelectPathGUI import select_path
@@ -7,7 +8,7 @@ FFMPEG_BIN = "ffmpeg"
 
 def convert_avi_to_mp4(avi_path):
     """
-    ����avi_path�Ŏw�肳�ꂽavi�t�@�C����mp4�ɕϊ�����֐�
+    引数avi_pathで指定されたaviファイルをmp4に変換する関数
     """
     mp4_path = avi_path.replace(".avi", ".mp4")
     
@@ -22,7 +23,7 @@ def convert_avi_to_mp4(avi_path):
         
 def convert_avi_to_mp4_recursive(folder_path):
     """
-    ����folder_path�Ŏw�肳�ꂽ�t�H���_�����ċA�I�ɒT�����Aavi�t�@�C����mp4�ɕϊ�����֐�
+    引数folder_pathで指定されたフォルダ下を再帰的に探索し、aviファイルをmp4に変換する関数
     """
     for file in os.listdir(folder_path):
         file_path = os.path.join(folder_path, file)
@@ -35,5 +36,7 @@ def convert_avi_to_mp4_recursive(folder_path):
             
 if __name__ == '__main__':
     # PATH = "C:\Users\tanaka\Downloads\syozemi_dataset\presentation_processed"
+    print("Select folder which contains avi files.")
     PATH = select_path(is_folder=True)
+    
     convert_avi_to_mp4_recursive(PATH)

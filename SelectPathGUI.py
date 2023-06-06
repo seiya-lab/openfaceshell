@@ -1,9 +1,10 @@
 import tkinter as tk
 from tkinter import filedialog
 
-def select_path(is_folder=False):
+def select_path(is_folder=False, title="Select Path"):
     root = tk.Tk()
     root.withdraw()  # メインウィンドウを非表示にする
+    root.title(title)  # ウィンドウのタイトルを設定する
 
     try:
         if is_folder:
