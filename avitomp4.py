@@ -1,6 +1,7 @@
 # 指定したフォルダ下を再帰的に探索し、aviファイルをmp4に変換するスクリプト
 import os
 import subprocess
+from SelectPathGUI import select_path
 
 FFMPEG_BIN = "ffmpeg"
 
@@ -33,5 +34,6 @@ def convert_avi_to_mp4_recursive(folder_path):
             convert_avi_to_mp4_recursive(file_path)
             
 if __name__ == '__main__':
-    PATH = "C:\Users\tanaka\Downloads\syozemi_dataset\presentation_processed"
+    # PATH = "C:\Users\tanaka\Downloads\syozemi_dataset\presentation_processed"
+    PATH = select_path(is_folder=True)
     convert_avi_to_mp4_recursive(PATH)
